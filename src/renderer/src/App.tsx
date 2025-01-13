@@ -16,6 +16,7 @@ const App = () => {
   // Tablo seçildiğinde kolonları getir
   const handleTableSelect = (table) => {
     setSelectedTable(table)
+    setFilters({})
     setResults([])
     window.api.getColumns(table).then(setColumns)
   }
