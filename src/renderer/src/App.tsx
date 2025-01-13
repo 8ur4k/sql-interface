@@ -22,7 +22,16 @@ const App = () => {
 
   // Input değişikliklerini takip et
   const handleInputChange = (column, value) => {
-    setFilters((prev) => ({ ...prev, [column]: value }))
+    setFilters((prev) => {
+      if (value === '') {
+        // Boş string ise column'u objeden kaldır
+        const updatedFilters = { ...prev }
+        delete updatedFilters[column]
+        return updatedFilters
+      }
+      // Aksi halde column'u güncelle veya ekle
+      return { ...prev, [column]: value }
+    })
   }
 
   // Arama işlemi
