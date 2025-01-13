@@ -5,6 +5,9 @@ declare global {
     electron: ElectronAPI
     api: {
       getPeople(): number
+      getTables(): Promise
+      getColumns(param): Promise
+      queryTable(param): Promise
     }
   }
 }

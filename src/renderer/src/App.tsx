@@ -1,32 +1,110 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import { useEffect, useState } from 'react'
 
-function App(): JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-  const data = window.api.getPeople()
+const App = () => {
+  const [tables, setTables] = useState([])
+  const [selectedTable, setSelectedTable] = useState(null)
+  const [columns, setColumns] = useState([])
+  const [filters, setFilters] = useState({})
+  const [isSearching, setIsSearching] = useState(false)
+  const [results, setResults] = useState([])
+
+  // SQLite tablolarını yükleme
+  useEffect(() => {
+    window.api.getTables().then(setTables)
+  }, [])
+
+  // Tablo seçildiğinde kolonları getir
+  const handleTableSelect = (table) => {
+    setSelectedTable(table)
+    setResults([])
+    window.api.getColumns(table).then(setColumns)
+  }
+
+  // Input değişikliklerini takip et
+  const handleInputChange = (column, value) => {
+    setFilters((prev) => ({ ...prev, [column]: value }))
+  }
+
+  // Arama işlemi
+  const handleSearch = () => {
+    console.log(filters)
+    setIsSearching(true)
+    window.api.queryTable({ tableName: selectedTable, conditions: filters }).then((result) => {
+      console.log(result)
+      setIsSearching(false)
+      setResults(result)
+    })
+  }
+
   return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
-      </div>
-      <p className="tip">Please try pressing {data} to open the devTool</p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
+    <div className="app">
+      {/* Sidebar */}
+      <div className="sidebar">
+        <h3>Burtigo v1.0</h3>
+        <div className="tables">
+          {tables.map((table) => (
+            <button
+              disabled={selectedTable == table}
+              key={table}
+              onClick={() => handleTableSelect(table)}
+            >
+              {table}
+            </button>
+          ))}
         </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
+        {/* <hr /> */}
+        {selectedTable && (
+          <>
+            {/* <h3>{selectedTable}</h3> */}
+            {/* Arama alanları */}
+            <div className="filters">
+              {columns.map((column) => (
+                <div key={column} className="filter">
+                  <label>{column}</label>
+                  <input
+                    type="text"
+                    onChange={(e) => handleInputChange(column, e.target.value.toUpperCase())}
+                  />
+                </div>
+              ))}
+              <button onClick={handleSearch}>Search</button>
+            </div>
+          </>
+        )}
       </div>
-      <Versions></Versions>
-    </>
+
+      {/* Main Content */}
+      <div className="main">
+        {isSearching && <h1>Searching...</h1>}
+        {!isSearching && results && (
+          <>
+            {/* Sonuçlar */}
+            <div className="results">
+              {results.length > 0 && (
+                <table>
+                  <thead>
+                    <tr>
+                      {Object.keys(results[0]).map((key) => (
+                        <th key={key}>{key}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {results.map((row, index) => (
+                      <tr key={index}>
+                        {Object.values(row).map((value, i) => (
+                          <td key={i}>{value}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
   )
 }
 

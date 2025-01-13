@@ -1,10 +1,13 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { getPeople } from '../services/db'
+import { getPeople, getTables, getColumns, queryTable } from '../services/db'
 
 // Custom APIs for renderer
 const api = {
-  getPeople
+  getPeople,
+  getTables,
+  getColumns,
+  queryTable
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
