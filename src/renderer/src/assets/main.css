@@ -19,7 +19,11 @@ body {
   width: 200px;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  position: fixed;
   align-items: center;
+  height: 100%;
   background-color: rgb(43, 43, 43);
   width: 150px;
   padding: 10px;
@@ -50,7 +54,9 @@ body {
 }
 
 .main {
-  flex: 1;
+  margin-left: 170px;
+  flex-grow: 1;
+  overflow-x: auto; /* Yatay kaydırma */
   padding: 20px;
 }
 
