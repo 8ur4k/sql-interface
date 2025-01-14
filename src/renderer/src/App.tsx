@@ -10,7 +10,7 @@ const App = () => {
 
   // SQLite tablolarını yükleme
   useEffect(() => {
-    window.api.getTables().then(setTables)
+    window.db.getTables().then(setTables)
   }, [])
 
   // Tablo seçildiğinde kolonları getir
@@ -18,7 +18,7 @@ const App = () => {
     setSelectedTable(table)
     setFilters({})
     setResults([])
-    window.api.getColumns(table).then(setColumns)
+    window.db.getColumns(table).then(setColumns)
   }
 
   // Input değişikliklerini takip et
@@ -39,7 +39,7 @@ const App = () => {
   const handleSearch = () => {
     console.log(filters)
     setIsSearching(true)
-    window.api.queryTable({ tableName: selectedTable, conditions: filters }).then((result) => {
+    window.db.query(selectedTable, filters).then((result) => {
       console.log(result)
       setIsSearching(false)
       setResults(result)
@@ -103,7 +103,9 @@ const App = () => {
                     {results.map((row, index) => (
                       <tr key={index}>
                         {Object.values(row).map((value, i) => (
-                          <td key={i}>{value}</td>
+                          <td key={i}>
+                            {typeof value === 'string' ? value : JSON.stringify(value)}
+                          </td>
                         ))}
                       </tr>
                     ))}

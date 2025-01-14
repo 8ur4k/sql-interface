@@ -1,14 +1,5 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { getPeople, getTables, getColumns, queryTable } from '../services/db'
-
-// Custom APIs for renderer
-const api = {
-  getPeople,
-  getTables,
-  getColumns,
-  queryTable
-}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
@@ -16,7 +7,11 @@ const api = {
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
+    contextBridge.exposeInMainWorld('db', {
+      getTables: () => ipcRenderer.invoke('db:getTables'),
+      getColumns: (tableName: string) => ipcRenderer.invoke('db:getColumns', tableName),
+      query: (query: string, values: string[]) => ipcRenderer.invoke('db:query', query, values)
+    })
   } catch (error) {
     console.error(error)
   }
