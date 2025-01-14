@@ -3,11 +3,10 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 declare global {
   interface Window {
     electron: ElectronAPI
-    api: {
-      getPeople(): number
+    db: {
       getTables(): Promise
       getColumns(param): Promise
-      queryTable(param): Promise
+      query(table, variables): Promise
     }
   }
 }

@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { DatabaseService } from '../services/db'
 
 function createWindow(): void {
   // Create the browser window.
@@ -51,6 +52,19 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  // Handle database queries in the main process
+  ipcMain.handle('db:getTables', async () => {
+    return await DatabaseService.getTables()
+  })
+
+  ipcMain.handle('db:getColumns', async (_, tableName: string) => {
+    return await DatabaseService.getColumns(tableName)
+  })
+
+  ipcMain.handle('db:query', async (_, query: string, values: string[]) => {
+    return await DatabaseService.query(query, values)
+  })
 
   createWindow()
 
