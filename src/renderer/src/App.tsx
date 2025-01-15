@@ -182,7 +182,7 @@ const App = () => {
                         }
                       }}
                     />
-                    <p>selected: {selectedDbFile}</p>
+                    {selectedDbFile && <p>selected: {selectedDbFile}</p>}
                   </>
                 ) : (
                   <div>
