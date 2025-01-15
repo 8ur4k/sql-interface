@@ -131,8 +131,9 @@ const App = () => {
     if (complated) {
       window.db.connectToDatabase(selectedMethod).then(() =>
         window.db.getTables().then((tables) => {
-          console.log(tables)
           setTables(tables)
+          setSelectedTable(tables[0])
+          window.db.getColumns(tables[0]).then(setColumns)
           setIsConnected(true)
         })
       )
