@@ -147,7 +147,7 @@ const App = () => {
   return (
     <div className="app">
       <div className="sidebar">
-        <h3>Burtigo v1.0</h3>
+        <h3>Burtico v1.3</h3>
         {selectedMethod && !isConnected && (
           <div className="method-inputs">
             <h3>{selectedMethod.name}</h3>
