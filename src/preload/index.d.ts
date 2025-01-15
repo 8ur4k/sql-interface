@@ -8,7 +8,7 @@ declare global {
       quitDatabase()
       getTables(): Promise
       getColumns(param): Promise
-      query(table, variables): Promise
+      query(table, variables, isExactMatch): Promise
     }
   }
 }

@@ -59,8 +59,8 @@ app.whenReady().then(() => {
     return await DatabaseService.getColumns(tableName)
   })
 
-  ipcMain.handle('db:query', async (_, query: string, values: string[]) => {
-    return await DatabaseService.query(query, values)
+  ipcMain.handle('db:query', async (_, query: string, values: string[], isExactMatch: boolean) => {
+    return await DatabaseService.query(query, values, isExactMatch)
   })
 
   createWindow()

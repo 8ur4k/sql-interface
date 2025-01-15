@@ -73,6 +73,7 @@ const App = () => {
   const [tables, setTables] = useState([])
   const [selectedTable, setSelectedTable] = useState()
   const [columns, setColumns] = useState([])
+  const [isExactMatch, setIsExactMatch] = useState(false)
   const [filters, setFilters] = useState({})
   const [isSearching, setIsSearching] = useState(false)
   const [results, setResults] = useState([])
@@ -97,7 +98,7 @@ const App = () => {
 
   const handleSearch = () => {
     setIsSearching(true)
-    window.db.query(selectedTable, filters).then((result) => {
+    window.db.query(selectedTable, filters, isExactMatch).then((result) => {
       setIsSearching(false)
       setResults(result)
     })
@@ -111,6 +112,7 @@ const App = () => {
     setTables([])
     setColumns([])
     setFilters({})
+    setIsExactMatch(false)
     setIsSearching(false)
     setResults([])
     setIsConnected(false)
@@ -246,6 +248,17 @@ const App = () => {
                   />
                 </div>
               ))}
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  name="checkbox"
+                  checked={isExactMatch}
+                  onChange={() => {
+                    setIsExactMatch(!isExactMatch)
+                  }}
+                />{' '}
+                Exact match
+              </label>
               <button onClick={handleSearch}>Search</button>
               <button onClick={handleQuit}>Quit</button>
             </div>

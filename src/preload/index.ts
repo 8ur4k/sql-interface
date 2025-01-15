@@ -9,7 +9,8 @@ if (process.contextIsolated) {
       quitDatabase: () => ipcRenderer.invoke('db:quitDatabase'),
       getTables: () => ipcRenderer.invoke('db:getTables'),
       getColumns: (tableName: string) => ipcRenderer.invoke('db:getColumns', tableName),
-      query: (query: string, values: string[]) => ipcRenderer.invoke('db:query', query, values)
+      query: (query: string, values: string[], isExactMatch: boolean) =>
+        ipcRenderer.invoke('db:query', query, values, isExactMatch)
     })
   } catch (error) {
     console.error(error)

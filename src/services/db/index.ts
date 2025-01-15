@@ -40,13 +40,13 @@ function getColumns(tableName) {
   return db.getColumns(tableName)
 }
 
-function query(tableName, conditions) {
+function query(tableName, conditions, isExactMatch) {
   const whereClause = Object.keys(conditions)
-    .map((key) => `${key} LIKE ?`)
+    .map((key) => (isExactMatch ? `${key} = ?` : `${key} LIKE ?`))
     .join(' AND ')
 
   const query = `SELECT * FROM ${tableName} ${whereClause ? `WHERE ${whereClause}` : ''}`
-  const values = Object.values(conditions).map((val) => `%${val}%`)
+  const values = Object.values(conditions).map((val) => (isExactMatch ? `${val}` : `%${val}%`))
 
   return db.query(query, values)
 }
