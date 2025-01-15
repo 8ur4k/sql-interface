@@ -103,6 +103,19 @@ const App = () => {
     })
   }
 
+  const handleQuit = () => {
+    window.db.quitDatabase()
+    setSelectedDbFile('')
+    setSelectedMethod(null)
+    setSelectedTable(undefined)
+    setTables([])
+    setColumns([])
+    setFilters({})
+    setIsSearching(false)
+    setResults([])
+    setIsConnected(false)
+  }
+
   const handleMethodInputChange = (column, value) => {
     setSelectedMethod((prev) => {
       const updatedMethodInputs = prev.methodInputs.map((item) => {
@@ -233,6 +246,7 @@ const App = () => {
                 </div>
               ))}
               <button onClick={handleSearch}>Search</button>
+              <button onClick={handleQuit}>Quit</button>
             </div>
           </>
         )}

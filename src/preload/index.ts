@@ -6,6 +6,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('db', {
       connectToDatabase: (params: object) => ipcRenderer.invoke('db:connectToDatabase', params),
+      quitDatabase: () => ipcRenderer.invoke('db:quitDatabase'),
       getTables: () => ipcRenderer.invoke('db:getTables'),
       getColumns: (tableName: string) => ipcRenderer.invoke('db:getColumns', tableName),
       query: (query: string, values: string[]) => ipcRenderer.invoke('db:query', query, values)

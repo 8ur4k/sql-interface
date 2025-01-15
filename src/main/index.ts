@@ -47,6 +47,10 @@ app.whenReady().then(() => {
     return await DatabaseService.connectToDatabase(params)
   })
 
+  ipcMain.handle('db:quitDatabase', async () => {
+    return await DatabaseService.quitDatabase()
+  })
+
   ipcMain.handle('db:getTables', async () => {
     return await DatabaseService.getTables()
   })

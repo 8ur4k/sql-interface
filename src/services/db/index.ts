@@ -28,6 +28,10 @@ function connectToDatabase(params) {
   }
 }
 
+function quitDatabase() {
+  db = null
+}
+
 function getTables() {
   return db.getTables()
 }
@@ -49,6 +53,7 @@ function query(tableName, conditions) {
 
 export const DatabaseService = {
   connectToDatabase,
+  quitDatabase,
   getTables,
   getColumns,
   query

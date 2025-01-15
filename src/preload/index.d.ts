@@ -5,6 +5,7 @@ declare global {
     electron: ElectronAPI
     db: {
       connectToDatabase(params): Promise
+      quitDatabase()
       getTables(): Promise
       getColumns(param): Promise
       query(table, variables): Promise
