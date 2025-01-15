@@ -10,9 +10,6 @@ export class MongoBridge implements DBBridge {
   }
 
   private async getConnection(): Promise<Db> {
-    // if (!this.client.topology || !this.client.topology.isConnected()) {
-    //   await this.client.connect()
-    // }
     return this.db
   }
 
@@ -39,39 +36,29 @@ export class MongoBridge implements DBBridge {
 
   async query(sqlQuery: string, params: string[]): Promise<unknown[]> {
     try {
-      // Extract the collection name from the SQL query
       const matchCollection = sqlQuery.match(/FROM (\w+)/)
       if (!matchCollection) throw new Error('Could not extract collection name from SQL query.')
       const collectionName = matchCollection[1]
-
-      // Prepare the filter object with regex for each parameter in params
       const filter: Record<string, any> = {}
-
-      // Assuming the field we are filtering on is `username` in all cases
       if (params.length > 0) {
-        // Handle the case where '%' symbols are included in the parameters
         filter.username = {
           $options: 'i',
           $regex: params
             .map((param) => {
-              // Check for '%' and modify the regex pattern accordingly
               if (param.startsWith('%') && param.endsWith('%')) {
-                return param.slice(1, -1) // Match any string containing the param
+                return param.slice(1, -1)
               } else if (param.startsWith('%')) {
-                return param.slice(1) // Match any string ending with the param
+                return param.slice(1)
               } else if (param.endsWith('%')) {
-                return param.slice(0, -1) // Match any string starting with the param
+                return param.slice(0, -1)
               }
-              return new RegExp(param, 'i') // Exact match
+              return new RegExp(param, 'i')
             })
-            .join('|') // Join all patterns with OR logic (this is for multiple params)
+            .join('|')
         }
       }
-
-      // Perform the MongoDB query with the filter
       const db = await this.getConnection()
       const results = await db.collection(collectionName).find(filter).toArray()
-      console.log({ results, collectionName, filter })
       return results
     } catch (err) {
       throw new Error(`Query failed: ${err.message}`)

@@ -1,24 +1,32 @@
-// import { MySQLBridge } from '../bridges/mysql-bridge'
-// const db = new MySQLBridge({
-//   host: 'autorack.proxy.rlwy.net',
-//   port: 33624,
-//   user: 'root',
-//   password: 'uFmSghkyFSmUPHaUwemQlTNzsRdpLknI',
-//   database: 'railway'
-// })
-
+import { MySQLBridge } from '../bridges/mysql-bridge'
 import { SQLiteBridge } from '../bridges/sqlite-bridge'
-const path = require('path')
-const dbPath = path.join(__dirname, '../../data/test123.db')
-const db = new SQLiteBridge(dbPath)
+import { MongoBridge } from '../bridges/mongodb-bridge'
+let db: any = null
 
-// import { MongoBridge } from '../bridges/mongodb-bridge'
-// const config = {
-//   uri: 'mongodb+srv://esteban:OowPtAsgyi8aN1E2@meayapp.0nds9rl.mongodb.net/',
-//   dbName: 'meay'
-// }
-
-// const db = new MongoBridge(config.uri, config.dbName)
+function connectToDatabase(params) {
+  switch (params.name) {
+    case 'Sqlite':
+      db = new SQLiteBridge(params.methodInputs.find((input) => input.name === 'dbPath').value)
+      break
+    case 'MySQL':
+      db = new MySQLBridge({
+        host: params.methodInputs.find((input) => input.name === 'host').value,
+        port: params.methodInputs.find((input) => input.name === 'port').value,
+        user: params.methodInputs.find((input) => input.name === 'user').value,
+        password: params.methodInputs.find((input) => input.name === 'password').value,
+        database: params.methodInputs.find((input) => input.name === 'database').value
+      })
+      break
+    case 'MongoDB':
+      db = new MongoBridge(
+        params.methodInputs.find((input) => input.name === 'uri').value,
+        params.methodInputs.find((input) => input.name === 'dbName').value
+      )
+      break
+    default:
+      break
+  }
+}
 
 function getTables() {
   return db.getTables()
@@ -29,8 +37,6 @@ function getColumns(tableName) {
 }
 
 function query(tableName, conditions) {
-  Object.keys(conditions).forEach((key) => console.log(key))
-
   const whereClause = Object.keys(conditions)
     .map((key) => `${key} LIKE ?`)
     .join(' AND ')
@@ -42,6 +48,7 @@ function query(tableName, conditions) {
 }
 
 export const DatabaseService = {
+  connectToDatabase,
   getTables,
   getColumns,
   query

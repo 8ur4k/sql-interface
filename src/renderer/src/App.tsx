@@ -1,19 +1,82 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 const App = () => {
+  const [methods, setMethods] = useState([
+    {
+      name: 'Sqlite',
+      methodInputs: [
+        {
+          type: 'file',
+          name: 'dbPath',
+          title: 'Database Path',
+          value: ''
+        }
+      ]
+    },
+    {
+      name: 'MySQL',
+      methodInputs: [
+        {
+          type: 'text',
+          name: 'host',
+          title: 'Host',
+          value: ''
+        },
+        {
+          type: 'text',
+          name: 'port',
+          title: 'Port',
+          value: ''
+        },
+        {
+          type: 'text',
+          name: 'user',
+          title: 'User',
+          value: ''
+        },
+        {
+          type: 'password',
+          name: 'password',
+          title: 'Password',
+          value: ''
+        },
+        {
+          type: 'text',
+          name: 'database',
+          title: 'Database Name',
+          value: ''
+        }
+      ]
+    },
+    {
+      name: 'MongoDB',
+      methodInputs: [
+        {
+          type: 'text',
+          name: 'uri',
+          title: 'Connection URI',
+          value: ''
+        },
+        {
+          type: 'text',
+          name: 'dbName',
+          title: 'Database Name',
+          value: ''
+        }
+      ]
+    }
+  ])
+
+  const [selectedDbFile, setSelectedDbFile] = useState('')
+  const [isConnected, setIsConnected] = useState(false)
+  const [selectedMethod, setSelectedMethod] = useState<any>()
   const [tables, setTables] = useState([])
-  const [selectedTable, setSelectedTable] = useState(null)
+  const [selectedTable, setSelectedTable] = useState()
   const [columns, setColumns] = useState([])
   const [filters, setFilters] = useState({})
   const [isSearching, setIsSearching] = useState(false)
   const [results, setResults] = useState([])
 
-  // SQLite tablolarını yükleme
-  useEffect(() => {
-    window.db.getTables().then(setTables)
-  }, [])
-
-  // Tablo seçildiğinde kolonları getir
   const handleTableSelect = (table) => {
     setSelectedTable(table)
     setFilters({})
@@ -21,52 +84,144 @@ const App = () => {
     window.db.getColumns(table).then(setColumns)
   }
 
-  // Input değişikliklerini takip et
   const handleInputChange = (column, value) => {
     setFilters((prev) => {
       if (value === '') {
-        // Boş string ise column'u objeden kaldır
         const updatedFilters = { ...prev }
         delete updatedFilters[column]
         return updatedFilters
       }
-      // Aksi halde column'u güncelle veya ekle
       return { ...prev, [column]: value }
     })
   }
 
-  // Arama işlemi
   const handleSearch = () => {
-    console.log(filters)
     setIsSearching(true)
     window.db.query(selectedTable, filters).then((result) => {
-      console.log(result)
       setIsSearching(false)
       setResults(result)
     })
   }
 
+  const handleMethodInputChange = (column, value) => {
+    setSelectedMethod((prev) => {
+      const updatedMethodInputs = prev.methodInputs.map((item) => {
+        if (item.name != column) return item
+        return { ...item, value }
+      })
+      return { ...prev, methodInputs: updatedMethodInputs }
+    })
+  }
+
+  const handleConnectDb = () => {
+    const complated = selectedMethod.methodInputs.every((input) => input.value.trim() !== '')
+    if (complated) {
+      window.db.connectToDatabase(selectedMethod).then(() =>
+        window.db.getTables().then((tables) => {
+          console.log(tables)
+          setTables(tables)
+          setIsConnected(true)
+        })
+      )
+    }
+  }
+
+  const handleCancel = () => {
+    setSelectedMethod(null)
+  }
+
   return (
     <div className="app">
-      {/* Sidebar */}
       <div className="sidebar">
         <h3>Burtigo v1.0</h3>
-        <div className="tables">
-          {tables.map((table) => (
-            <button
-              disabled={selectedTable == table}
-              key={table}
-              onClick={() => handleTableSelect(table)}
-            >
-              {table}
-            </button>
-          ))}
-        </div>
-        {/* <hr /> */}
+        {selectedMethod && !isConnected && (
+          <div className="method-inputs">
+            <h3>{selectedMethod.name}</h3>
+            {selectedMethod.methodInputs.map((methodInput) => (
+              <div key={methodInput.title}>
+                {methodInput.type === 'file' ? (
+                  <>
+                    <div
+                      className="custom-drag-drop"
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault()
+                        const file = e.dataTransfer.files[0]
+                        setSelectedDbFile(file.name)
+                        if (file) {
+                          handleMethodInputChange(methodInput.name, file.path)
+                        }
+                      }}
+                    >
+                      Drop db file here or choose path bellow.
+                    </div>
+                    <label htmlFor={`${methodInput.name}-upload`} className="custom-file-upload">
+                      Choose db path
+                    </label>
+                    <input
+                      id={`${methodInput.name}-upload`}
+                      type="file"
+                      onChange={(e) => {
+                        const file = e.target.files[0]
+                        setSelectedDbFile(file.name)
+                        if (file) {
+                          handleMethodInputChange(methodInput.name, file.path)
+                        }
+                      }}
+                    />
+                    <p>selected: {selectedDbFile}</p>
+                  </>
+                ) : (
+                  <div>
+                    <label>{methodInput.title}</label>
+                    <input
+                      type={methodInput.type}
+                      onChange={(e) => {
+                        handleMethodInputChange(methodInput.name, e.target.value)
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+            <button onClick={handleConnectDb}>Connect</button>
+            <button onClick={handleCancel}>Cancel</button>
+          </div>
+        )}
+        {!selectedMethod && (
+          <div className="methods">
+            <h3>Choose method</h3>
+            {methods.map((method) => (
+              <button
+                key={method.name}
+                onClick={() =>
+                  setSelectedMethod(
+                    methods.find((i) => {
+                      return i.name == method.name
+                    })
+                  )
+                }
+              >
+                {method.name}
+              </button>
+            ))}
+          </div>
+        )}
+        {isConnected && (
+          <div className="tables">
+            {tables.map((table) => (
+              <button
+                disabled={selectedTable == table}
+                key={table}
+                onClick={() => handleTableSelect(table)}
+              >
+                {table}
+              </button>
+            ))}
+          </div>
+        )}
         {selectedTable && (
           <>
-            {/* <h3>{selectedTable}</h3> */}
-            {/* Arama alanları */}
             <div className="filters">
               {columns.map((column) => (
                 <div key={column} className="filter">
@@ -82,13 +237,10 @@ const App = () => {
           </>
         )}
       </div>
-
-      {/* Main Content */}
       <div className="main">
         {isSearching && <h1>Searching...</h1>}
         {!isSearching && results && (
           <>
-            {/* Sonuçlar */}
             <div className="results">
               {results.length > 0 && (
                 <table>

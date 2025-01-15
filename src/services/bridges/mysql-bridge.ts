@@ -30,7 +30,6 @@ export class MySQLBridge implements DBBridge {
   async query(query: string, values: string[]): Promise<unknown[]> {
     try {
       const [rows] = await this.pool.query(query, values)
-      console.log({ rows })
       return (rows as any[]).filter((row) => row !== 'id')
     } catch (err) {
       throw new Error(`Query failed: ${err.message}`)

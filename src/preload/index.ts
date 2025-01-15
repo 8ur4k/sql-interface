@@ -1,13 +1,11 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('db', {
+      connectToDatabase: (params: object) => ipcRenderer.invoke('db:connectToDatabase', params),
       getTables: () => ipcRenderer.invoke('db:getTables'),
       getColumns: (tableName: string) => ipcRenderer.invoke('db:getColumns', tableName),
       query: (query: string, values: string[]) => ipcRenderer.invoke('db:query', query, values)

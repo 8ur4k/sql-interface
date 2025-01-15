@@ -10,7 +10,6 @@ body {
 .app {
   display: flex;
   background-color: black;
-  font-family: 'Orbitron', serif;
   min-height: 100vh;
   color: #4af626;
 }
@@ -27,6 +26,41 @@ body {
   background-color: rgb(43, 43, 43);
   width: 150px;
   padding: 10px;
+}
+
+.method-inputs {
+  margin: 20px 0;
+}
+
+.method-inputs div,
+button,
+p {
+  margin: 10px 0;
+}
+
+.custom-drag-drop {
+  border: 2px #4af626 dashed;
+  padding: 5px;
+}
+
+input[type='file'] {
+  display: none;
+}
+
+.custom-file-upload {
+  border: 1px solid #ccc;
+  display: block;
+  text-align: center;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.methods {
+  margin: 10px 0;
+}
+
+.methods button {
+  margin: 10px 0;
 }
 
 .tables {
